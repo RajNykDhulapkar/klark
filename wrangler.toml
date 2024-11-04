@@ -1,0 +1,14 @@
+name = "klark"
+compatibility_date = "2024-07-29"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[env.preview.vars]
+DATABASE_URL = "libsql://klarkdb-melodyjumper.turso.io"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = "pk_test_51QH6AQ2MCcdNFypI0tQ26yEv9L6EfjzrwYKU9Ap7K9qP1LnZWSHBMqpcP6q0DKLvRABCEPbpp4iW6sFru6iBzzUm00zyo93Sqd"
+BASE_URL = "http://localhost:8788"
+
+[env.production.vars]
+DATABASE_URL = "libsql://klarkdb-melodyjumper.turso.io"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = "pk_test_51QH6AQ2MCcdNFypI0tQ26yEv9L6EfjzrwYKU9Ap7K9qP1LnZWSHBMqpcP6q0DKLvRABCEPbpp4iW6sFru6iBzzUm00zyo93Sqd"
+BASE_URL = "https://klark.bitnaysh.com"

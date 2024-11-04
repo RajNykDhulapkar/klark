@@ -1,0 +1,71 @@
+{
+  "site": {
+    "title": "Klark",
+    "description": "Your AI-powered document assistant for quick, insightful answers.",
+    "profile": {
+      "title": "Profile",
+      "description": "Manage your account settings."
+    }
+  },
+  "hero": {
+    "title": "Klark",
+    "subtitle1": "Upload. Ask. Discover.",
+    "subtitle2": "Your document assistant.",
+    "subtitle3": "Get precise answers from your documents in seconds."
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Have questions? We’re here to help.",
+    "contact": "Contact support"
+  },
+  "footer": {
+    "follow": "Follow Us",
+    "support": "Customer Support",
+    "about": "About Klark"
+  },
+  "comingSoon": {
+    "title": "Coming Soon",
+    "subtitle": "We’re building something incredible. Stay tuned and be the first to know!",
+    "cta": "Notify Me",
+    "thankYou": "Thank you for your interest! You’ll be notified when we launch."
+  },
+  "auth": {
+    "title": "Welcome to Klark",
+    "subtitle": "Sign in or create an account to get started.",
+    "email": "Email",
+    "password": "Password",
+    "register": {
+      "success": {
+        "title": "Registration Successful",
+        "description": "Thank you for signing up! Please check your email to verify your account."
+      }
+    },
+    "login": {
+      "verifyEmail": {
+        "title": "Verify Your Email",
+        "description": "Please verify your email before logging in.",
+        "button": "Resend Verification Email"
+      }
+    }
+  },
+  "forgotPassword": {
+    "subject": "Reset Your Password",
+    "preview": "Reset your password",
+    "heading": "Reset Your Password",
+    "button": "RESET PASSWORD",
+    "or": "or",
+    "intendedFor": "This password reset request was intended for",
+    "ignoreIfNotExpected": "If you did not request this, please ignore this email.",
+    "copyAndPaste": "copy and paste this URL into your browser:"
+  },
+  "verifyEmail": {
+    "subject": "Verify Your Email",
+    "preview": "Verify your email",
+    "heading": "Verify Your Email",
+    "button": "VERIFY EMAIL",
+    "or": "or",
+    "intendedFor": "This email verification request was intended for",
+    "ignoreIfNotExpected": "If you did not expect this, please ignore this email.",
+    "copyAndPaste": "copy and paste this URL into your browser:"
+  }
+}
