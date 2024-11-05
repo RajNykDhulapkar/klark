@@ -1,14 +1,13 @@
-name: Deploy to Cloudflare Pages
+name: Deploy to VPS
 
-on: [push]
+on:
+  push:
+    branches:
+      - deploy
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      deployments: write
-    name: Deploy to Cloudflare Pages
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -27,27 +26,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-        # The Zod schema in env.mjs expects these environment variables to be set
-        # they don't have to be real values, just pass validation so we can build
-      - name: setup environment variables
-        run: |
-          touch .env
-          echo "DATABASE_URL=libsql://example.turso.io" >> .env
-          echo "TURSO_AUTH_TOKEN=deploy" >> .env
-          echo "STRIPE_SECRET_KEY=deploy" >> .env
-          echo "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=deploy" >> .env
-          echo "STRIPE_WEBHOOK_SECRET=deploy" >> .env
-          echo "RESEND_API_KEY=deploy" >> .env
-          echo "EMAIL_FROM=deploy" >> .env
-          echo "NEXT_PUBLIC_POSTHOG_KEY=deploy" >> .env
-          echo "NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com" >> .env
-
-      - name: Install Wrangler
-        run: pnpm add -g wrangler
-
-      - name: Deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm run deploy
-
+      - name: Build
+        run: pnpm run build
