@@ -9,7 +9,7 @@ import { type ReadonlyRequestCookies } from "next/dist/server/web/spec-extension
 
 // const crypto = Crypto.webcrypto;
 
-export const runtime = "edge";
+
 
 export function generateSalt(length = 16) {
   return crypto.getRandomValues(new Uint8Array(length));

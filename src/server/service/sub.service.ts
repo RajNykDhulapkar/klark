@@ -9,7 +9,7 @@ import { logger } from "~/lib/logger";
 import type Stripe from "stripe";
 import { getUserByStripeCustomerId, updateUser } from "./auth.service";
 
-export const runtime = "edge";
+
 
 export async function createCustomerInStripe(userId: string, email: string) {
   const customerData = { metadata: { userId, email }, email };

@@ -5,7 +5,7 @@ import { logger } from "~/lib/logger";
 import { stripe } from "~/lib/stripe/config";
 import { manageSubscriptionStatusChange } from "~/server/service/sub.service";
 
-export const runtime = "edge";
+
 
 const relevantEvents = new Set([
   "customer.subscription.created",

@@ -2,7 +2,7 @@ import "server-only";
 import { db, type Transaction } from "../db";
 import { interestedUserTable } from "../db/schema";
 
-export const runtime = "edge";
+
 
 export async function createInterestedUser(
   {
