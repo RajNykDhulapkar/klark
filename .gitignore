@@ -43,3 +43,6 @@ yarn-error.log*
 
 # idea files
 .idea
+
+# volumes
+db_data/

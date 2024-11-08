@@ -1,7 +1,7 @@
 import { api } from "~/trpc/server";
 import { LandingPage } from "./_components/landing/LandingPage";
 
-export const runtime = "edge";
+
 
 export default async function Home() {
   const user = await api.auth.user();

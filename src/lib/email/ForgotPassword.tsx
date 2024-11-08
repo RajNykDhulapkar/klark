@@ -12,14 +12,15 @@ import {
   Tailwind,
 } from "@react-email/components";
 import * as React from "react";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+
 interface Props {
   url: string;
   email: string;
 }
 
-export default function ForgotPasswordEmail({ url, email }: Props) {
-  const t = useTranslations("forgotPassword");
+export default async function ForgotPasswordEmail({ url, email }: Props) {
+  const t = await getTranslations("forgotPassword");
   return (
     <Html>
       <Head />

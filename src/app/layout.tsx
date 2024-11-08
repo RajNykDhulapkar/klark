@@ -12,15 +12,13 @@ import { env } from "~/env";
 import { ComingSoon } from "./_components/ComingSoon";
 import { PHProvider } from "./_components/Providers";
 
-export const runtime = "edge";
-
 const PostHogPageView = dynamic(() => import("./_components/PostHogPageView"), {
   ssr: false,
 });
 
 export const metadata: Metadata = {
-  title: "IndiKit",
-  description: "Subscription SaaS starter kit",
+  title: "Klark",
+  description: "Your AI-powered document assistant",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

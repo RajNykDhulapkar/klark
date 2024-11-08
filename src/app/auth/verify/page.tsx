@@ -5,8 +5,6 @@ import { api } from "~/trpc/react";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { ExclamationTriangleIcon, ReloadIcon } from "@radix-ui/react-icons";
 
-export const runtime = "edge";
-
 export default function VerifyPage({
   searchParams,
 }: {

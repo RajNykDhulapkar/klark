@@ -43,6 +43,9 @@ export const authRouter = createTRPCRouter({
     .input(registerSchema)
     .mutation(async ({ input, ctx }) => {
       const { db } = ctx;
+
+      console.log("register", input);
+
       const { email, password, name } = input;
 
       try {
@@ -94,6 +97,8 @@ export const authRouter = createTRPCRouter({
 
       const [userId, token] = decoded.split(":");
 
+      console.log("verifyEmail", input);
+
       if (!userId || !token) {
         throw new TRPCError({
           code: "BAD_REQUEST",
@@ -115,7 +120,7 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      if (existingToken.expiresAt < Date.now()) {
+      if (existingToken.expiresAt.getTime() < Date.now()) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Token expired",
@@ -280,7 +285,7 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      if (existingToken.expiresAt < Date.now()) {
+      if (existingToken.expiresAt.getTime() < Date.now()) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Token expired",

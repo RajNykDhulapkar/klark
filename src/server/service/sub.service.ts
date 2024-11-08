@@ -4,12 +4,26 @@ import { type InferInsertModel, and, eq } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { stripe } from "~/lib/stripe/config";
 import { env } from "~/env";
-import { subscriptionTable, userTable } from "../db/schema";
+import { type Subscription, subscriptionTable, userTable } from "../db/schema";
 import { logger } from "~/lib/logger";
 import type Stripe from "stripe";
-import { getUserByStripeCustomerId, updateUser } from "./auth.service";
+import { getUserByStripeCustomerId } from "./auth.service";
+import { z } from "zod";
 
+type SubscriptionStatus =
+  | "trialing"
+  | "active"
+  | "canceled"
+  | "incomplete"
+  | "incomplete_expired"
+  | "past_due"
+  | "unpaid"
+  | "paused";
 
+const UserUpdateSchema = z.object({
+  stripeCustomerId: z.string(),
+  updatedAt: z.date().optional(),
+});
 
 export async function createCustomerInStripe(userId: string, email: string) {
   const customerData = { metadata: { userId, email }, email };
@@ -20,7 +34,10 @@ export async function createCustomerInStripe(userId: string, email: string) {
 
   await db
     .update(userTable)
-    .set({ stripeCustomerId: newCustomer.id })
+    .set({
+      stripeCustomerId: newCustomer.id,
+      updatedAt: new Date(),
+    })
     .where(eq(userTable.id, userId));
 
   return newCustomer.id;
@@ -39,31 +56,19 @@ export async function manageSubscriptionStatusChange(subscriptionId: string) {
   }
 
   const customerId = stripeSubscription.customer as string;
-
   const price = stripeSubscription.items.data[0]?.price;
 
-  if (!price) {
-    throw new Error("Subscription does not have a price");
-  }
-
-  const priceId = price.id;
-  if (!priceId) {
-    throw new Error("Subscription does not have a price id");
+  if (!price?.id) {
+    throw new Error("Subscription does not have a valid price");
   }
 
   const productId = price.product;
-  if (!productId) {
-    throw new Error("Subscription does not have a product");
-  }
-
   if (typeof productId !== "string") {
-    throw new Error("Product ID is not a string");
+    throw new Error("Invalid product ID");
   }
 
   const product = await stripe.products.retrieve(productId);
-
   const credits = parseInt(product?.metadata?.credits ?? "0", 10);
-
   const user = await getUserByStripeCustomerId(customerId);
 
   if (!user) {
@@ -74,19 +79,23 @@ export async function manageSubscriptionStatusChange(subscriptionId: string) {
     !stripeSubscription.current_period_start ||
     !stripeSubscription.current_period_end
   ) {
-    throw new Error("Subscription does not have a current period start or end");
+    throw new Error("Invalid subscription period");
   }
 
   const params: InferInsertModel<typeof subscriptionTable> = {
     id: subscriptionId,
     userId: user.id,
     customerId,
-    priceId,
-    status: stripeSubscription.status,
-    currentPeriodEnd: stripeSubscription.current_period_end,
-    currentPeriodStart: stripeSubscription.current_period_start,
+    priceId: price.id,
+    status: stripeSubscription.status as SubscriptionStatus,
+    currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+    currentPeriodStart: new Date(
+      stripeSubscription.current_period_start * 1000,
+    ),
     metadata: stripeSubscription.metadata,
     credits,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
   await db.insert(subscriptionTable).values(params).onConflictDoUpdate({
@@ -138,7 +147,7 @@ async function findOrCreateStripeCustomer({
 }: {
   email: string;
   userId: string;
-}) {
+}): Promise<string> {
   let stripeCustomerId = await findStripeCustomerByEmail(email);
 
   if (!stripeCustomerId) {
@@ -146,10 +155,10 @@ async function findOrCreateStripeCustomer({
   }
 
   if (!stripeCustomerId) {
-    throw new Error("error creating customer");
+    throw new Error("Failed to create or find stripe customer");
   }
 
-  await updateUser(userId, { stripeCustomerId });
+  await updateUserStripeCustomerId(userId, stripeCustomerId);
 
   return stripeCustomerId;
 }
@@ -264,7 +273,7 @@ export async function getProducts() {
 export async function getUserSubscription(
   userId: string,
   tx: Transaction = db,
-) {
+): Promise<Subscription | null> {
   const subscriptions = await tx
     .select()
     .from(subscriptionTable)
@@ -275,9 +284,7 @@ export async function getUserSubscription(
       ),
     );
 
-  const subscription = subscriptions[0] ?? null;
-
-  return subscription;
+  return subscriptions[0] ?? null;
 }
 
 export async function deductCreditsForSubscription(
@@ -289,7 +296,7 @@ export async function deductCreditsForSubscription(
     amount: number;
   },
   tx: Transaction = db,
-) {
+): Promise<void> {
   const subscription = await getUserSubscription(userId, tx);
 
   if (!subscription) {
@@ -300,7 +307,10 @@ export async function deductCreditsForSubscription(
 
   await tx
     .update(subscriptionTable)
-    .set({ credits: newCredits })
+    .set({
+      credits: newCredits,
+      updatedAt: new Date(),
+    })
     .where(eq(subscriptionTable.id, subscription.id));
 }
 
@@ -313,7 +323,7 @@ export async function hasEnoughCreditsForSubscription(
     amount: number;
   },
   tx: Transaction = db,
-) {
+): Promise<boolean> {
   const subscription = await getUserSubscription(userId, tx);
 
   if (!subscription) {
@@ -321,4 +331,16 @@ export async function hasEnoughCreditsForSubscription(
   }
 
   return subscription.credits >= amount;
+}
+
+async function updateUserStripeCustomerId(
+  userId: string,
+  stripeCustomerId: string,
+) {
+  const updateData = UserUpdateSchema.parse({
+    stripeCustomerId,
+    updatedAt: new Date(),
+  });
+
+  await db.update(userTable).set(updateData).where(eq(userTable.id, userId));
 }

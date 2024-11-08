@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { api } from "~/trpc/server";
 
-export const runtime = "edge";
+
 
 export default async function CheckoutPage({
   params,

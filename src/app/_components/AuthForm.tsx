@@ -65,6 +65,7 @@ function AuthFormContent({
       window.location.href = redirect;
     },
   });
+
   const register = api.auth.register.useMutation({});
 
   const [activeTab, setActiveTab] = useState<keyof typeof pages>(defaultTab);

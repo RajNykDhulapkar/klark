@@ -1,5 +1,4 @@
 process.env.DATABASE_URL = "libsql://test.db";
-process.env.TURSO_AUTH_TOKEN = "test";
 process.env.STRIPE_SECRET_KEY = "test";
 process.env.STRIPE_WEBHOOK_SECRET = "test";
 process.env.RESEND_API_KEY = "test";

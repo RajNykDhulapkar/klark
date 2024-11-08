@@ -1,62 +1,44 @@
-// Example model schema from the Drizzle docs
-// https://orm.drizzle.team/docs/sql-schema-declaration
-
-import { sql } from "drizzle-orm";
 import {
-  int,
-  integer,
-  sqliteTableCreator,
+  pgTable,
   text,
-} from "drizzle-orm/sqlite-core";
+  timestamp,
+  boolean,
+  varchar,
+  json,
+  integer,
+} from "drizzle-orm/pg-core";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
-export const createTable = sqliteTableCreator((name) => `indi-starter_${name}`);
-
-const createdAtUpdatedAt = {
-  createdAt: int("created_at", { mode: "timestamp" })
-    .default(sql`(unixepoch())`)
-    .notNull(),
-  updatedAt: int("updated_at", { mode: "timestamp" }).$onUpdate(
-    () => new Date(),
-  ),
-};
-
-export const userTable = createTable("user", {
+export const userTable = pgTable("klark_user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
-  email: text("email").notNull().unique(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
   passwordHash: text("password_hash").notNull(),
-  verified: int("verified", {
-    mode: "boolean",
-  })
-    .notNull()
-    .default(false),
+  verified: boolean("verified").notNull().default(false),
   stripeCustomerId: text("stripe_customer_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const sessionTable = createTable("session", {
+export const sessionTable = pgTable("klark_session", {
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id),
-  expiresAt: integer("expires_at").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
 });
 
-export const verificationTokenTable = createTable("verification_token", {
+export const verificationTokenTable = pgTable("klark_verification_token", {
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id),
   token: text("token").notNull(),
-  expiresAt: int("expires_at").notNull(),
-  ...createdAtUpdatedAt,
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const subscriptionTable = createTable("subscription", {
+export const subscriptionTable = pgTable("klark_subscription", {
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
@@ -75,15 +57,34 @@ export const subscriptionTable = createTable("subscription", {
     ],
   }).notNull(),
   customerId: text("customer_id").notNull(),
-  currentPeriodStart: integer("current_period_start").notNull(),
-  currentPeriodEnd: int("current_period_end").notNull(),
-  credits: int("credits").notNull(),
-  metadata: text("metadata", { mode: "json" }),
-  ...createdAtUpdatedAt,
+  currentPeriodStart: timestamp("current_period_start").notNull(),
+  currentPeriodEnd: timestamp("current_period_end").notNull(),
+  credits: integer("credits").notNull(),
+  metadata: json("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const interestedUserTable = createTable("interested_user", {
-  email: text("email").primaryKey(),
+export const interestedUserTable = pgTable("klark_interested_user", {
+  email: varchar("email", { length: 255 }).primaryKey(),
   name: text("name"),
-  ...createdAtUpdatedAt,
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+export type User = typeof userTable.$inferSelect;
+export type Session = typeof sessionTable.$inferSelect;
+export type VerificationToken = typeof verificationTokenTable.$inferSelect;
+export type Subscription = typeof subscriptionTable.$inferSelect;
+export type InterestedUser = typeof interestedUserTable.$inferSelect;
+
+// Zod Schemas
+export const insertUserSchema = createInsertSchema(userTable);
+export const selectUserSchema = createSelectSchema(userTable);
+export const updateUserSchema = createInsertSchema(userTable)
+  .omit({
+    id: true,
+    email: true,
+    createdAt: true,
+  })
+  .partial();

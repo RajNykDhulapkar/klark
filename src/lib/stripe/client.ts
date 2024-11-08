@@ -1,4 +1,5 @@
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
+
 import { env } from "~/env";
 
 let stripePromise: Promise<Stripe | null>;

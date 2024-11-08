@@ -12,15 +12,15 @@ import {
   Tailwind,
 } from "@react-email/components";
 import * as React from "react";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 
 interface Props {
   url: string;
   email: string;
 }
 
-export default function VerificationEmail({ url, email }: Props) {
-  const t = useTranslations("verifyEmail");
+export default async function VerificationEmail({ url, email }: Props) {
+  const t = await getTranslations("verifyEmail");
   return (
     <Html>
       <Head />

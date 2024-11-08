@@ -1,38 +1,27 @@
-import { createClient, type ResultSet, type Client } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
-import { env } from "../../env";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import { env } from "~/env";
 import * as schema from "./schema";
-import { type SQLiteTransaction } from "drizzle-orm/sqlite-core";
-import { type ExtractTablesWithRelations } from "drizzle-orm";
 
+const pool = new Pool({
+  connectionString: env.DATABASE_URL,
+  ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: true } : false,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
 
+export const db = drizzle(pool, { schema });
 
-/**
- * Cache the database connection in development. This avoids creating a new connection on every HMR
- * update.
- */
-const globalForDb = globalThis as unknown as {
-  client: Client | undefined;
-};
+export type Transaction = typeof db;
 
-export const client =
-  globalForDb.client ??
-  createClient({
-    url: env.DATABASE_URL,
-    authToken: env.TURSO_AUTH_TOKEN,
-  });
-
-if (env.NODE_ENV !== "production") {
-  globalForDb.client = client;
+export async function withErrorHandler<T>(
+  operation: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    console.error("Database operation failed:", error);
+    throw new Error("Database operation failed");
+  }
 }
-
-export const db = drizzle(client, { schema });
-
-export type Transaction =
-  | SQLiteTransaction<
-      "async",
-      ResultSet,
-      typeof schema,
-      ExtractTablesWithRelations<typeof schema>
-    >
-  | typeof db;

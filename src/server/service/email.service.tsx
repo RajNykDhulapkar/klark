@@ -4,8 +4,6 @@ import VerificationEmail from "../../lib/email/VerifyEmail";
 import ForgotPasswordEmail from "~/lib/email/ForgotPassword";
 import { env } from "~/env";
 
-export const runtime = "edge";
-
 const resend = new Resend(env.RESEND_API_KEY);
 
 export async function sendVerificationEmail({
