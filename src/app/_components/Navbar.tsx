@@ -23,7 +23,6 @@ import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import { Logo } from "./Logo";
 import { PiHandCoinsBold } from "react-icons/pi";
-import { type User } from "lucia";
 
 function AuthenticatedMenu() {
   const router = useRouter();

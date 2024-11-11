@@ -1,3 +1,4 @@
+import { Footer } from "../Footer";
 import { Pricing } from "../Pricing";
 import { FAQ } from "./FAQs";
 import { Hero } from "./Hero";
@@ -10,6 +11,7 @@ export function LandingPage() {
       <FAQ />
       <hr />
       <Pricing />
+      <Footer />
     </>
   );
 }

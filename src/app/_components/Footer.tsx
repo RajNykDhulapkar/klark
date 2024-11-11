@@ -25,7 +25,7 @@ export function Footer() {
           <div>
             <a
               rel="noreferrer noopener"
-              href="https://github.com/tomdoestech"
+              href="https://github.com/RajNykDhulapkar"
               className="flex items-center gap-2 opacity-60 hover:opacity-100"
             >
               <PiGithubLogo />
@@ -36,7 +36,7 @@ export function Footer() {
           <div>
             <a
               rel="noreferrer noopener"
-              href="https://x.com/tomdoes_tech"
+              href="https://x.com/RajNykDhulapkar"
               className="flex items-center gap-2 opacity-60 hover:opacity-100"
             >
               <PiXLogo />X
@@ -46,7 +46,7 @@ export function Footer() {
           <div>
             <a
               rel="noreferrer noopener"
-              href="https://www.youtube.com/tomdoestech"
+              href="https://www.youtube.com/rajnykdhulapkar"
               className="flex items-center gap-2 opacity-60 hover:opacity-100"
             >
               <PiYoutubeLogo />

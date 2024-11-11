@@ -36,7 +36,7 @@ export function Hero() {
 
           <a
             rel="noreferrer noopener"
-            href="https://github.com/TomDoesTech/indikit"
+            href="https://github.com/RajNykDhulapkar/klark"
             target="_blank"
             className={`w-full md:w-1/3 ${buttonVariants({
               variant: "outline",

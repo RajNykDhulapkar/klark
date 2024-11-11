@@ -42,14 +42,14 @@ export default async function RootLayout({
                 <div className="flex min-h-full flex-col">
                   <Navbar />
                   <main className="min-h-full flex-1 py-8">{children}</main>
-                  <Toaster />
-                  <Footer />
                 </div>
               )}
 
               <PostHogPageView />
             </TRPCReactProvider>
           </NextIntlClientProvider>
+
+          <Toaster />
         </body>
       </PHProvider>
     </html>
