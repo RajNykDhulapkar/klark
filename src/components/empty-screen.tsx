@@ -26,10 +26,10 @@ export function EmptyScreen({ setInput }: Pick<UseChatHelpers, "setInput">) {
           Welcome to Marketing Chatbot!
         </h1>
         <p className="mb-2 leading-normal text-muted-foreground">
-          Hi there! I'm a trained digital marketer ready to assist you. What
-          questions do you have today? Whether it's about SEO, social media,
-          content strategy, or anything else, I'm here to help you navigate the
-          world of digital marketing. Ask away!
+          Hi there! I&apos;m a trained digital marketer ready to assist you.
+          What questions do you have today? Whether it&apos;s about SEO, social
+          media, content strategy, or anything else, I&apos;m here to help you
+          navigate the world of digital marketing. Ask away!
         </p>
         <p className="leading-normal text-muted-foreground">
           You can start a conversation here or try the following examples:

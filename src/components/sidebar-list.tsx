@@ -1,13 +1,38 @@
-import { getChats, removeChat, shareChat } from "~/app/actions";
 import { SidebarActions } from "~/components/sidebar-actions";
 import { SidebarItem } from "~/components/sidebar-item";
+import { api } from "~/trpc/react";
+import { Skeleton } from "./ui/skeleton";
 
-export interface SidebarListProps {
-  userId?: string;
-}
+export async function SidebarList() {
+  const {
+    data: chats,
+    isLoading,
+    error,
+  } = api.chat.list.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+  });
 
-export async function SidebarList({ userId }: SidebarListProps) {
-  const chats = await getChats(userId);
+  if (isLoading) {
+    return (
+      <div className="flex-1 overflow-auto p-2">
+        <div className="space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-12 w-full rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-sm text-destructive">
+          Error loading chats: {error.message}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 overflow-auto">
@@ -17,11 +42,7 @@ export async function SidebarList({ userId }: SidebarListProps) {
             (chat) =>
               chat && (
                 <SidebarItem key={chat?.id} chat={chat}>
-                  <SidebarActions
-                    chat={chat}
-                    removeChat={removeChat}
-                    shareChat={shareChat}
-                  />
+                  <SidebarActions chat={chat} />
                 </SidebarItem>
               ),
           )}

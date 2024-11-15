@@ -16,6 +16,12 @@ export interface ChatMessageProps {
   message: Message;
 }
 
+interface CodeProps {
+  inline?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+}
+
 export function ChatMessage({ message, ...props }: ChatMessageProps) {
   return (
     <div
@@ -40,35 +46,36 @@ export function ChatMessage({ message, ...props }: ChatMessageProps) {
             p({ children }) {
               return <p className="mb-2 last:mb-0">{children}</p>;
             },
-            code({ node, inline, className, children, ...props }) {
-              if (children.length) {
-                if (children[0] == "▍") {
+            code({ inline, className, children, ...props }: CodeProps) {
+              const content = String(children).replace(/\n$/, "");
+
+              if (typeof content === "string") {
+                if (content === "▍") {
                   return (
                     <span className="mt-1 animate-pulse cursor-default">▍</span>
                   );
                 }
 
-                children[0] = (children[0] as string).replace("`▍`", "▍");
-              }
+                if (inline) {
+                  return (
+                    <code className={className} {...props}>
+                      {content.replace("`▍`", "▍")}
+                    </code>
+                  );
+                }
 
-              const match = /language-(\w+)/.exec(className || "");
-
-              if (inline) {
+                const match = /language-(\w+)/.exec(className ?? "");
                 return (
-                  <code className={className} {...props}>
-                    {children}
-                  </code>
+                  <CodeBlock
+                    key={Math.random()}
+                    language={match?.[1] ?? ""}
+                    value={content}
+                    {...props}
+                  />
                 );
               }
 
-              return (
-                <CodeBlock
-                  key={Math.random()}
-                  language={match?.[1] || ""}
-                  value={String(children).replace(/\n$/, "")}
-                  {...props}
-                />
-              );
+              return null;
             },
           }}
         >

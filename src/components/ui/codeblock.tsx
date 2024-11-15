@@ -3,7 +3,7 @@
 
 "use client";
 
-import { type FC, memo } from "react";
+import { type FC, memo, useCallback } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coldarkDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
@@ -85,10 +85,10 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
     URL.revokeObjectURL(url);
   };
 
-  const onCopy = () => {
+  const onCopy = useCallback(async () => {
     if (isCopied) return;
-    copyToClipboard(value);
-  };
+    await copyToClipboard(value);
+  }, [copyToClipboard, isCopied, value]);
 
   return (
     <div className="codeblock relative w-full bg-zinc-950 font-sans">

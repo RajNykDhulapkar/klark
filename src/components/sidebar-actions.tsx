@@ -3,8 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 
-import { type Chat, type ServerActionResult } from "~/lib/types";
-import { cn, formatDate } from "~/lib/utils";
+import { cn } from "~/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,29 +37,48 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { useToast } from "~/hooks/use-toast";
+import { type Chat } from "~/server/db/schema";
+import { api } from "~/trpc/react";
 
 interface SidebarActionsProps {
   chat: Chat;
-  removeChat: (args: { id: string; path: string }) => ServerActionResult<void>;
-  shareChat: (chat: Chat) => ServerActionResult<Chat>;
 }
 
-export function SidebarActions({
-  chat,
-  removeChat,
-  shareChat,
-}: SidebarActionsProps) {
+export function SidebarActions({ chat }: SidebarActionsProps) {
   const { toast } = useToast();
+  const router = useRouter();
+  const utils = api.useUtils();
 
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false);
-  const [isRemovePending, startRemoveTransition] = React.useTransition();
-  const [isSharePending, startShareTransition] = React.useTransition();
-  const router = useRouter();
+
+  const deleteMutation = api.chat.remove.useMutation({
+    onSuccess: async () => {
+      setDeleteDialogOpen(false);
+      await utils.chat.list.invalidate();
+      router.push("/");
+      toast({ title: "Success", description: "Chat deleted" });
+    },
+    onError: (error) => {
+      toast({ title: "Error", description: error.message });
+    },
+  });
+
+  const shareMutation = api.chat.share.useMutation({
+    onSuccess: async (updatedChat) => {
+      if (updatedChat?.metadata?.sharePath) {
+        await copyShareLink(updatedChat);
+      }
+    },
+    onError: (error) => {
+      toast({ title: "Error", description: error.message });
+    },
+  });
 
   const copyShareLink = React.useCallback(
     async (chat: Chat) => {
-      if (!chat.sharePath) {
+      const sharePath = chat.metadata?.sharePath;
+      if (!sharePath) {
         toast({
           title: "Error",
           description: "Could not copy share link to clipboard",
@@ -69,7 +87,7 @@ export function SidebarActions({
       }
 
       const url = new URL(window.location.href);
-      url.pathname = chat.sharePath;
+      url.pathname = sharePath;
       await navigator.clipboard.writeText(url.toString());
       setShareDialogOpen(false);
       toast({
@@ -101,7 +119,7 @@ export function SidebarActions({
             <Button
               variant="ghost"
               className="h-6 w-6 p-0 hover:bg-background"
-              disabled={isRemovePending}
+              disabled={deleteMutation.isPending}
               onClick={() => setDeleteDialogOpen(true)}
             >
               <IconTrash />
@@ -121,15 +139,11 @@ export function SidebarActions({
           </DialogHeader>
           <div className="space-y-1 rounded-md border p-4 text-sm">
             <div className="font-medium">{chat.title}</div>
-            <div className="text-muted-foreground">
-              {formatDate(Number(chat.createdAt))} · {chat.messages.length}{" "}
-              messages
-            </div>
           </div>
           <DialogFooter className="items-center">
-            {chat.sharePath && (
+            {chat.metadata?.sharePath && (
               <Link
-                href={chat.sharePath}
+                href={chat.metadata.sharePath}
                 className={cn(
                   badgeVariants({ variant: "secondary" }),
                   "mr-auto",
@@ -137,34 +151,20 @@ export function SidebarActions({
                 target="_blank"
               >
                 <IconUsers className="mr-2" />
-                {chat.sharePath}
+                {chat.metadata.sharePath}
               </Link>
             )}
             <Button
-              disabled={isSharePending}
+              disabled={shareMutation.isPending}
               onClick={() => {
-                startShareTransition(async () => {
-                  if (chat.sharePath) {
-                    await new Promise((resolve) => setTimeout(resolve, 500));
-                    await copyShareLink(chat);
-                    return;
-                  }
-
-                  const result = await shareChat(chat);
-
-                  if (result && "error" in result) {
-                    toast({
-                      title: "Error",
-                      description: result.error?.toString(),
-                    });
-                    return;
-                  }
-
-                  await copyShareLink(result);
-                });
+                if (chat.metadata?.sharePath) {
+                  void copyShareLink(chat);
+                  return;
+                }
+                shareMutation.mutate(chat.id);
               }}
             >
-              {isSharePending ? (
+              {shareMutation.isPending ? (
                 <>
                   <IconSpinner className="mr-2 animate-spin" />
                   Copying...
@@ -186,32 +186,19 @@ export function SidebarActions({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isRemovePending}>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              disabled={isRemovePending}
+              disabled={deleteMutation.isPending}
               onClick={(event) => {
                 event.preventDefault();
-                startRemoveTransition(async () => {
-                  const result = await removeChat({
-                    id: chat.id,
-                    path: chat.path,
-                  });
-
-                  if (result && "error" in result) {
-                    toast({ title: "Error", description: result.error });
-                    return;
-                  }
-
-                  setDeleteDialogOpen(false);
-                  router.refresh();
-                  router.push("/");
-                  toast({ title: "Success", description: "Chat deleted" });
-                });
+                deleteMutation.mutate(chat.id);
               }}
             >
-              {isRemovePending && <IconSpinner className="mr-2 animate-spin" />}
+              {deleteMutation.isPending && (
+                <IconSpinner className="mr-2 animate-spin" />
+              )}
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

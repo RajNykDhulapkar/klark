@@ -72,13 +72,17 @@ export const interestedUserTable = pgTable("klark_interested_user", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+interface ChatMetadata {
+  sharePath?: string; // Optional because not all rows may have a `sharePath`
+}
+
 export const chatTable = pgTable("klark_chat", {
   id: text("id").primaryKey(),
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id),
   title: varchar("title", { length: 255 }).notNull(),
-  metadata: json("metadata"),
+  metadata: json("metadata").$type<ChatMetadata>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

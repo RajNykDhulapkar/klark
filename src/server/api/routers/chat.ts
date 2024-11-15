@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "~/server/db";
-import { chatTable } from "~/server/db/schema";
+import { chatTable, messageTable } from "~/server/db/schema";
 import { TRPCError } from "@trpc/server";
 
 export const chatRouter = createTRPCRouter({
@@ -23,6 +23,24 @@ export const chatRouter = createTRPCRouter({
       },
     });
   }),
+
+  remove: protectedProcedure
+    .input(z.string())
+    .mutation(async ({ ctx, input }) => {
+      const chat = await db.query.chatTable.findFirst({
+        where: and(eq(chatTable.id, input), eq(chatTable.userId, ctx.user.id)),
+      });
+
+      if (!chat) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      await db
+        .delete(chatTable)
+        .where(and(eq(chatTable.id, input), eq(chatTable.userId, ctx.user.id)));
+
+      return { success: true };
+    }),
 
   share: protectedProcedure
     .input(z.string())
@@ -55,5 +73,26 @@ export const chatRouter = createTRPCRouter({
     if (!chat) throw new TRPCError({ code: "NOT_FOUND" });
 
     return chat;
+  }),
+
+  clearChats: protectedProcedure.mutation(async ({ ctx }) => {
+    const chats = await db.query.chatTable.findMany({
+      where: eq(chatTable.userId, ctx.user.id),
+    });
+
+    if (!chats.length) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
+
+    await db.delete(messageTable).where(
+      inArray(
+        messageTable.chatId,
+        chats.map((chat) => chat.id),
+      ),
+    );
+
+    await db.delete(chatTable).where(eq(chatTable.userId, ctx.user.id));
+
+    return { success: true };
   }),
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { type Message } from "ai";
+import { useCallback } from "react";
 
 import { Button } from "~/components/ui/button";
 import { IconCheck, IconCopy } from "~/components/ui/icons";
@@ -18,10 +19,10 @@ export function ChatMessageActions({
 }: ChatMessageActionsProps) {
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 });
 
-  const onCopy = () => {
+  const onCopy = useCallback(async () => {
     if (isCopied) return;
-    copyToClipboard(message.content);
-  };
+    await copyToClipboard(message.content);
+  }, [copyToClipboard, isCopied, message.content]);
 
   return (
     <div

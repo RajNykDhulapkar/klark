@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 
-import { type ServerActionResult } from "~/lib/types";
 import { Button } from "~/components/ui/button";
 import {
   AlertDialog,
@@ -17,21 +16,40 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { IconSpinner } from "~/components/ui/icons";
+import { useToast } from "~/hooks/use-toast";
+import { api } from "~/trpc/react";
 
-interface ClearHistoryProps {
-  clearChats: () => ServerActionResult<void>;
-}
-
-export function ClearHistory({ clearChats }: ClearHistoryProps) {
+export function ClearHistory() {
   const [open, setOpen] = React.useState(false);
-  const [isPending, startTransition] = React.useTransition();
   const router = useRouter();
+  const { toast } = useToast();
+
+  const utils = api.useUtils();
+
+  const clearChatsMutation = api.chat.clearChats.useMutation({
+    onSuccess: async () => {
+      setOpen(false);
+      toast({
+        title: "Success",
+        description: "Chat history cleared successfully",
+      });
+      await utils.chat.list.invalidate();
+      router.push("/");
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" disabled={isPending}>
-          {isPending && <IconSpinner className="mr-2" />}
+        <Button variant="ghost" disabled={clearChatsMutation.isPending}>
+          {clearChatsMutation.isPending && <IconSpinner className="mr-2" />}
           Clear history
         </Button>
       </AlertDialogTrigger>
@@ -44,24 +62,19 @@ export function ClearHistory({ clearChats }: ClearHistoryProps) {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={clearChatsMutation.isPending}>
+            Cancel
+          </AlertDialogCancel>
           <AlertDialogAction
-            disabled={isPending}
+            disabled={clearChatsMutation.isPending}
             onClick={(event) => {
               event.preventDefault();
-              startTransition(async () => {
-                const result = await clearChats();
-
-                if (result && "error" in result) {
-                  return;
-                }
-
-                setOpen(false);
-                router.push("/");
-              });
+              clearChatsMutation.mutate();
             }}
           >
-            {isPending && <IconSpinner className="mr-2 animate-spin" />}
+            {clearChatsMutation.isPending && (
+              <IconSpinner className="mr-2 animate-spin" />
+            )}
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>
