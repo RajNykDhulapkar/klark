@@ -13,6 +13,10 @@ export const env = createEnv({
     EMAIL_FROM: z.string(),
     BASE_URL: z.string().url(),
     STRIPE_WEBHOOK_SECRET: z.string(),
+    OPEN_AI_MODEL: z.string(),
+    OPENAI_API_KEY: z.string(),
+    OPENAI_VERBOSE: z.string(),
+    LAST_K_CHAT_HISTORY: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -40,6 +44,10 @@ export const env = createEnv({
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
+    OPEN_AI_MODEL: process.env.OPEN_AI_MODEL,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    OPENAI_VERBOSE: process.env.OPENAI_VERBOSE,
+    LAST_K_CHAT_HISTORY: process.env.LAST_K_CHAT_HISTORY,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     EMAIL_FROM: process.env.EMAIL_FROM ?? "Acme <onboarding@resend.dev>",

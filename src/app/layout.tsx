@@ -11,6 +11,7 @@ import { Toaster } from "~/components/ui/toaster";
 import { env } from "~/env";
 import { ComingSoon } from "./_components/ComingSoon";
 import { PHProvider } from "./_components/Providers";
+import { TooltipProvider } from "~/components/ui/tooltip";
 
 const PostHogPageView = dynamic(() => import("./_components/PostHogPageView"), {
   ssr: false,
@@ -36,15 +37,18 @@ export default async function RootLayout({
         <body>
           <NextIntlClientProvider messages={messages}>
             <TRPCReactProvider>
-              {env.NEXT_PUBLIC_COMING_SOON_MODE ? (
-                <ComingSoon />
-              ) : (
-                <div className="flex min-h-full flex-col">
-                  <Navbar />
-                  <main className="min-h-full flex-1 py-8">{children}</main>
-                </div>
-              )}
-
+              <TooltipProvider>
+                {env.NEXT_PUBLIC_COMING_SOON_MODE ? (
+                  <ComingSoon />
+                ) : (
+                  <div className="flex min-h-full flex-col">
+                    <Navbar />
+                    <main className="min-h-full flex-1 bg-muted/50 py-8">
+                      {children}
+                    </main>
+                  </div>
+                )}
+              </TooltipProvider>
               <PostHogPageView />
             </TRPCReactProvider>
           </NextIntlClientProvider>

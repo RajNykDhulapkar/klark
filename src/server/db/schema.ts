@@ -72,11 +72,38 @@ export const interestedUserTable = pgTable("klark_interested_user", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const chatTable = pgTable("klark_chat", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  title: varchar("title", { length: 255 }).notNull(),
+  metadata: json("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const messageTable = pgTable("klark_message", {
+  id: text("id").primaryKey(),
+  chatId: text("chat_id")
+    .notNull()
+    .references(() => chatTable.id, { onDelete: "cascade" }),
+  role: varchar("role", { length: 50 }).notNull(),
+  content: text("content").notNull(),
+  metadata: json("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type User = typeof userTable.$inferSelect;
 export type Session = typeof sessionTable.$inferSelect;
 export type VerificationToken = typeof verificationTokenTable.$inferSelect;
 export type Subscription = typeof subscriptionTable.$inferSelect;
 export type InterestedUser = typeof interestedUserTable.$inferSelect;
+export type Chat = typeof chatTable.$inferSelect;
+export type Message = typeof messageTable.$inferSelect;
+export type NewChat = typeof chatTable.$inferInsert;
+export type NewMessage = typeof messageTable.$inferInsert;
 
 // Zod Schemas
 export const insertUserSchema = createInsertSchema(userTable);
@@ -85,6 +112,26 @@ export const updateUserSchema = createInsertSchema(userTable)
   .omit({
     id: true,
     email: true,
+    createdAt: true,
+  })
+  .partial();
+
+export const insertChatSchema = createInsertSchema(chatTable);
+export const selectChatSchema = createSelectSchema(chatTable);
+export const updateChatSchema = createInsertSchema(chatTable)
+  .omit({
+    id: true,
+    userId: true,
+    createdAt: true,
+  })
+  .partial();
+
+export const insertMessageSchema = createInsertSchema(messageTable);
+export const selectMessageSchema = createSelectSchema(messageTable);
+export const updateMessageSchema = createInsertSchema(messageTable)
+  .omit({
+    id: true,
+    chatId: true,
     createdAt: true,
   })
   .partial();
