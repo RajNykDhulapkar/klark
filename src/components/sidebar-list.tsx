@@ -1,3 +1,4 @@
+"use client";
 import { SidebarActions } from "~/components/sidebar-actions";
 import { SidebarItem } from "~/components/sidebar-item";
 import { api } from "~/trpc/react";
