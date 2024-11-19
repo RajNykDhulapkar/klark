@@ -6,6 +6,7 @@ import { env } from "~/env";
 
 export function PHProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
+    if (!(env.NEXT_PUBLIC_POSTHOG_ENABLED === "true")) return;
     posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
       api_host: env.NEXT_PUBLIC_POSTHOG_HOST,
       person_profiles: "identified_only",

@@ -1,26 +1,28 @@
-import { type UseChatHelpers } from "ai/react";
+import { type Message, type UseChatHelpers } from "ai/react";
 
 import { Button } from "~/components/ui/button";
 import { PromptForm } from "~/components/prompt-form";
 import { ButtonScrollToBottom } from "~/components/button-scroll-to-bottom";
 import { IconRefresh, IconStop } from "~/components/ui/icons";
 import { ChatBotRole } from "~/lib/types";
+import { nanoid } from "~/lib/utils";
+import { Sidebar } from "./sidebar";
+import React from "react";
+import { SidebarList } from "./sidebar-list";
+import { SidebarFooter } from "./sidebar-footer";
+import { ClearHistory } from "./clear-history";
+
 export interface ChatPanelProps
   extends Pick<
     UseChatHelpers,
-    | "append"
-    | "isLoading"
-    | "reload"
-    | "messages"
-    | "stop"
-    | "input"
-    | "setInput"
+    "isLoading" | "messages" | "stop" | "input" | "setInput"
   > {
   id?: string;
+  append: (message: Message) => void;
+  reload: () => void;
 }
 
 export function ChatPanel({
-  id,
   isLoading,
   stop,
   append,
@@ -33,6 +35,17 @@ export function ChatPanel({
     <div className="fixed inset-x-0 bottom-0 bg-gradient-to-b from-muted/10 from-10% to-muted/30 to-50%">
       {/* accessibility */}
       <ButtonScrollToBottom />
+
+      <div className="absolute bottom-[1rem] right-[1rem] z-[10] size-fit">
+        <Sidebar>
+          <React.Suspense fallback={<div className="flex-1 overflow-auto" />}>
+            <SidebarList />
+          </React.Suspense>
+          <SidebarFooter>
+            <ClearHistory />
+          </SidebarFooter>
+        </Sidebar>
+      </div>
 
       {/* stop generating button */}
       <div className="mx-auto sm:max-w-2xl sm:px-4">
@@ -65,8 +78,8 @@ export function ChatPanel({
         <div className="space-y-4 border-t bg-background px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4">
           <PromptForm
             onSubmit={async (value) => {
-              await append({
-                id,
+              append({
+                id: nanoid(),
                 content: value,
                 role: ChatBotRole.Human,
               });
