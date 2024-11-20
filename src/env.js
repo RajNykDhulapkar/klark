@@ -9,7 +9,7 @@ export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
     STRIPE_SECRET_KEY: z.string(),
-    RESEND_API_KEY: z.string(),
+    RESEND_API_KEY: z.string().default("re_123"),
     EMAIL_FROM: z.string(),
     BASE_URL: z.string().url(),
     STRIPE_WEBHOOK_SECRET: z.string(),

@@ -1,0 +1,45 @@
+# Node modules and package manager logs
+node_modules
+.pnp
+.pnp.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Docker-specific files
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Git-related files
+.git
+.gitignore
+
+# Environment files
+.env
+.env*.local
+
+# Development artifacts
+*.tsbuildinfo
+.vercel
+.idea
+/db_data
+/coverage
+/prisma/db.sqlite
+/prisma/db.sqlite-journal
+db.sqlite
+.next/
+.out/
+next-env.d.ts
+/build
+
+# System-specific files
+.DS_Store
+
+# Security files
+*.pem
+
+# testing
+test/
+test-results/
