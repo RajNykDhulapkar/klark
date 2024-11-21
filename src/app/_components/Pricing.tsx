@@ -64,8 +64,7 @@ export function Pricing() {
     <div className="container mx-auto px-4 py-8">
       <LargeHeading>Pricing</LargeHeading>
       <p className="mb-4 text-muted-foreground">
-        IndiKit is free but you can follow the subscribe flow to see how it
-        works. It iss in test mode so you will not be charged.
+        Klark pricing is simple and transparent. You pay for the features you
       </p>
       <div className="mb-8 flex items-center justify-center space-x-4">
         <span
