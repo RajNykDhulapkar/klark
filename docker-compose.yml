@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   watchtower:
-    image: containrrr/watchtower
+    image: containrrr/watchtower:latest-dev
     command:
       - "--label-enable"
       - "--interval"
@@ -10,6 +10,9 @@ services:
       - "--rolling-restart"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ~/app/.docker/config.json:/root/.docker/config.json
+    environment:
+      - DOCKER_CONFIG=/root/.docker
     networks:
       - app-network
 

@@ -66,6 +66,9 @@ export function Pricing() {
       <p className="mb-4 text-muted-foreground">
         Klark pricing is simple and transparent. You pay for the features you
       </p>
+      <p className="mb-4 text-sm text-muted-foreground">
+        * Prices shown are in USD and exclude any applicable
+      </p>
       <div className="mb-8 flex items-center justify-center space-x-4">
         <span
           className={`text-sm font-medium ${!isYearly ? "text-primary" : "text-muted-foreground"}`}
