@@ -5,7 +5,8 @@ import * as schema from "./schema";
 
 const pool = new Pool({
   connectionString: env.DATABASE_URL,
-  ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: true } : false,
+  // ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: true } : false,
+  ssl: false,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
