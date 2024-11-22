@@ -66,6 +66,8 @@ export const authRouter = createTRPCRouter({
 
           const token = await createVerificationToken(userId, tx);
 
+          console.log("created token", token);
+
           const encodedToken = Buffer.from(`${userId}:${token}`).toString(
             "base64",
           );
@@ -80,6 +82,8 @@ export const authRouter = createTRPCRouter({
         });
       } catch (e) {
         const message = e instanceof Error ? e.message : "An error occurred";
+
+        console.error("Error registering user", e);
 
         throw new TRPCError({
           code: "BAD_REQUEST",

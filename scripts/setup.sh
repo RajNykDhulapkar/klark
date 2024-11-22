@@ -13,7 +13,7 @@ if [ "$(docker ps -aq -f name=klark_db)" ]; then
     echo "Container 'klark_db' is already running, skipping creation."
   else
     echo "Container 'klark_db' exists but is not running. Starting container."
-    docker start postgres-klark
+    docker start klark_db
   fi
 else
   # Run the PostgreSQL container if it does not already exist

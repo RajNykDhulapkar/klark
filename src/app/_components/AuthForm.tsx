@@ -142,6 +142,12 @@ function AuthFormContent({
             <AlertTitle>Opps!</AlertTitle>
             <AlertDescription>{login.error.message}</AlertDescription>
           </Alert>
+        ) : register.isError ? (
+          <Alert>
+            <ExclamationTriangleIcon className="h-4 w-4 text-red-700" />
+            <AlertTitle>Opps!</AlertTitle>
+            <AlertDescription>{register.error.message}</AlertDescription>
+          </Alert>
         ) : null}
       </CardHeader>
       <CardContent>

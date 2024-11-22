@@ -17,12 +17,14 @@ export async function sendVerificationEmail({
 }) {
   const url = `${env.BASE_URL}/auth/verify?token=${token}&redirect=${redirect}`;
 
-  await resend.emails.send({
+  const resp = await resend.emails.send({
     from: env.EMAIL_FROM,
     to,
     subject: "Verify your email",
     react: <VerificationEmail url={url} email={to} />,
   });
+
+  console.log("sendVerificationEmail", resp);
 }
 
 export async function sendForgotPasswordEmail({
