@@ -44,7 +44,7 @@ services:
       - app-network
 
   app:
-    image: ghcr.io/rajnykdhulapkar/klark:main
+    image: registry.utho.io/bitnaysh/rajnykdhulapkar/klark:main
     # container_name: klark_app
     restart: unless-stopped
     labels:
@@ -54,10 +54,12 @@ services:
       - "traefik.http.services.app.loadbalancer.server.port=3000"
       - "com.centurylinklabs.watchtower.enable=true"
     environment:
+      BASE_URL: ${BASE_URL}
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
-      RESEND_API_KEY: ${RESEND_API_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      EMAIL_FROM: ${EMAIL_FROM}
       OPEN_AI_MODEL: ${OPEN_AI_MODEL}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_VERBOSE: ${OPENAI_VERBOSE}
@@ -65,6 +67,7 @@ services:
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
       NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY}
       NEXT_PUBLIC_POSTHOG_HOST: ${NEXT_PUBLIC_POSTHOG_HOST}
+      NEXT_PUBLIC_COMING_SOON_MODE: ${NEXT_PUBLIC_COMING_SOON_MODE}
       NODE_ENV: production
     # deploy:
     #   mode: replicated
