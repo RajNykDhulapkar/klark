@@ -33,25 +33,8 @@ wait_for_db() {
   echo "PostgreSQL is up - continuing..."
 }
 
-# Function to wait for MinIO
-wait_for_minio() {
-  echo "Waiting for MinIO to be ready..."
-  until curl -sf "${MINIO_ENDPOINT}/minio/health/ready" >/dev/null 2>&1; do
-    echo "MinIO is unavailable - sleeping"
-    sleep 2
-  done
-  echo "MinIO is up - continuing..."
-}
-
-# Function to wait for ChromaDB
-wait_for_chroma() {
-  echo "Waiting for ChromaDB to be ready..."
-  until curl -sf "${CHROMA_URL}/api/v1/heartbeat" >/dev/null 2>&1; do
-    echo "ChromaDB is unavailable - sleeping"
-    sleep 2
-  done
-  echo "ChromaDB is up - continuing..."
-}
+echo "message" "Waiting for services to start..."
+sleep 7
 
 setup_minio() {
   echo "Setting up MinIO client..."
