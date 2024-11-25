@@ -33,7 +33,7 @@ wait_for_db() {
   echo "PostgreSQL is up - continuing..."
 }
 
-echo "message" "Waiting for services to start..."
+echo "Waiting for services to start..."
 sleep 7
 
 setup_minio() {
