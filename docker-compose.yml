@@ -43,6 +43,28 @@ services:
     networks:
       - app-network
 
+  minio:
+    image: minio/minio
+    container_name: klark_minio
+    restart: unless-stopped
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    networks:
+      - app-network
+
+  chroma:
+    image: ghcr.io/chroma-core/chroma:latest
+    container_name: klark_chroma
+    restart: unless-stopped
+    volumes:
+      - chroma_data:/chroma/chroma
+    networks:
+      - app-network
+
   app:
     image: registry.utho.io/bitnaysh/rajnykdhulapkar/klark:main
     # container_name: klark_app
@@ -63,6 +85,10 @@ services:
       OPEN_AI_MODEL: ${OPEN_AI_MODEL}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_VERBOSE: ${OPENAI_VERBOSE}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      CHROMA_URL: http://chroma:8000
       LAST_K_CHAT_HISTORY: ${LAST_K_CHAT_HISTORY}
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
       NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY}
@@ -83,3 +109,5 @@ networks:
 
 volumes:
   db_data:
+  minio_data:
+  chroma_data:
