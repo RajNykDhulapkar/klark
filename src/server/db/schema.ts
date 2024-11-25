@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -87,6 +88,11 @@ export const chatTable = pgTable("klark_chat", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const chatRelations = relations(chatTable, ({ many }) => ({
+  messages: many(messageTable),
+  files: many(fileTable),
+}));
+
 export const messageTable = pgTable("klark_message", {
   id: text("id").primaryKey(),
   chatId: text("chat_id")
@@ -99,6 +105,37 @@ export const messageTable = pgTable("klark_message", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const messageRelations = relations(messageTable, ({ one }) => ({
+  chat: one(chatTable, {
+    fields: [messageTable.chatId],
+    references: [chatTable.id],
+  }),
+}));
+
+export const fileTable = pgTable("klark_file", {
+  id: text("id").primaryKey(),
+  chatId: text("chat_id")
+    .notNull()
+    .references(() => chatTable.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  fileName: text("file_name").notNull(),
+  originalName: text("original_name").notNull(),
+  mimeType: text("mime_type").notNull(),
+  s3Key: text("s3_key").notNull(),
+  metadata: json("metadata"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const fileRelations = relations(fileTable, ({ one }) => ({
+  chat: one(chatTable, {
+    fields: [fileTable.chatId],
+    references: [chatTable.id],
+  }),
+}));
+
 export type User = typeof userTable.$inferSelect;
 export type Session = typeof sessionTable.$inferSelect;
 export type VerificationToken = typeof verificationTokenTable.$inferSelect;
@@ -108,6 +145,8 @@ export type Chat = typeof chatTable.$inferSelect;
 export type Message = typeof messageTable.$inferSelect;
 export type NewChat = typeof chatTable.$inferInsert;
 export type NewMessage = typeof messageTable.$inferInsert;
+export type File = typeof fileTable.$inferSelect;
+export type NewFile = typeof fileTable.$inferInsert;
 
 // Zod Schemas
 export const insertUserSchema = createInsertSchema(userTable);

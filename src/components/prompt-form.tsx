@@ -11,15 +11,19 @@ import {
 } from "~/components/ui/tooltip";
 import { useEnterSubmit } from "~/hooks/use-enter-submit";
 import { cn } from "~/lib/utils";
-import { useRouter } from "next/navigation";
+
+import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
+import FileUploader from "~/app/_components/FileUpload";
 
 export interface PromptProps
   extends Pick<UseChatHelpers, "input" | "setInput"> {
+  chatId: string;
   onSubmit: (value: string) => Promise<void>;
   isLoading: boolean;
 }
 
 export function PromptForm({
+  chatId,
   onSubmit,
   input,
   setInput,
@@ -27,7 +31,6 @@ export function PromptForm({
 }: PromptProps) {
   const { formRef, onKeyDown } = useEnterSubmit();
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
-  const router = useRouter();
 
   React.useEffect(() => {
     if (inputRef.current) {
@@ -48,25 +51,23 @@ export function PromptForm({
       ref={formRef}
     >
       <div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background px-8 sm:rounded-md sm:border sm:px-12">
-        <Tooltip>
-          <TooltipTrigger asChild>
+        <Dialog>
+          <DialogTrigger asChild>
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                router.refresh();
-                router.push("/");
-              }}
               className={cn(
                 buttonVariants({ size: "sm", variant: "outline" }),
                 "absolute left-0 top-4 h-8 w-8 rounded-full bg-background p-0 sm:left-4",
               )}
             >
               <IconPlus />
-              <span className="sr-only">New Chat</span>
+              <span className="sr-only">Upload Files</span>
             </button>
-          </TooltipTrigger>
-          <TooltipContent>New Chat</TooltipContent>
-        </Tooltip>
+          </DialogTrigger>
+
+          <DialogContent className="z-[100] pl-7">
+            <FileUploader chatId={chatId} />
+          </DialogContent>
+        </Dialog>
         <Textarea
           ref={inputRef}
           tabIndex={0}

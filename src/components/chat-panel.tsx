@@ -17,12 +17,13 @@ export interface ChatPanelProps
     UseChatHelpers,
     "isLoading" | "messages" | "stop" | "input" | "setInput"
   > {
-  id?: string;
+  chatId: string;
   append: (message: Message) => void;
   reload: () => void;
 }
 
 export function ChatPanel({
+  chatId,
   isLoading,
   stop,
   append,
@@ -77,6 +78,7 @@ export function ChatPanel({
         {/* chat input bar */}
         <div className="space-y-4 border-t bg-background px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4">
           <PromptForm
+            chatId={chatId}
             onSubmit={async (value) => {
               append({
                 id: nanoid(),

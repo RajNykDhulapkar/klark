@@ -3,6 +3,7 @@ import { api } from "~/trpc/react";
 import { skipToken } from "@tanstack/react-query";
 import { type Message } from "ai/react";
 import { nanoid } from "~/lib/utils";
+import { usePathname, useRouter } from "next/navigation";
 
 export function useTRPCChat({
   id,
@@ -11,15 +12,15 @@ export function useTRPCChat({
   id?: string;
   initialMessages?: Message[];
 }) {
+  const router = useRouter();
+  const path = usePathname();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
   const [input, setInput] = useState("");
   const [activeSubscriptionId, setActiveSubscriptionId] = useState<
     string | null
   >(null);
-  const messagesForSub = useRef<
-    Array<{ role: "user" | "assistant"; content: string }>
-  >([]);
+  const messagesForSub = useRef<Message[]>(messages);
 
   const stop = useCallback(() => {
     setActiveSubscriptionId(null);
@@ -28,10 +29,8 @@ export function useTRPCChat({
 
   const append = useCallback(
     (message: Message) => {
-      messagesForSub.current = [...messages, message].map((msg) => ({
-        role: msg.role as "user" | "assistant",
-        content: msg.content,
-      }));
+      messagesForSub.current = [...messages, message];
+
       setActiveSubscriptionId(nanoid());
       setMessages((prev) => [...prev, message]);
       setIsLoading(true);
@@ -40,10 +39,7 @@ export function useTRPCChat({
   );
 
   const reload = useCallback(() => {
-    messagesForSub.current = messages.slice(0, -1).map((msg) => ({
-      role: msg.role as "user" | "assistant",
-      content: msg.content,
-    }));
+    messagesForSub.current = messages.slice(0, -1);
     setActiveSubscriptionId(nanoid());
     setMessages((prev) => prev.slice(0, -1));
     setIsLoading(true);
@@ -51,7 +47,18 @@ export function useTRPCChat({
 
   api.chat.chatStream.useSubscription(
     activeSubscriptionId
-      ? { chatId: id, messages: messagesForSub.current }
+      ? {
+          chatId: id,
+          messages: [
+            {
+              role: messagesForSub.current[messagesForSub.current.length - 1]
+                ?.role as "user" | "assistant",
+              content:
+                messagesForSub.current[messagesForSub.current.length - 1]
+                  ?.content ?? "",
+            },
+          ],
+        }
       : skipToken,
     {
       onStarted: () => {
@@ -69,6 +76,11 @@ export function useTRPCChat({
         if (chunk === "__END__END__") {
           setActiveSubscriptionId(null);
           setIsLoading(false);
+
+          if (!path.includes("chat")) {
+            router.push(`/chat/${id}`);
+          }
+
           return;
         }
         setMessages((prev) => {

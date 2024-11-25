@@ -15,6 +15,20 @@
       "when": 1731488143372,
       "tag": "0001_salty_thundra",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1732557897274,
+      "tag": "0002_breezy_ricochet",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1732558448608,
+      "tag": "0003_slow_leech",
+      "breakpoints": true
     }
   ]
 }

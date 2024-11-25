@@ -11,7 +11,7 @@ import { useTRPCChat } from "~/hooks/use-trpc-chat";
 
 export interface ChatProps extends React.ComponentProps<"div"> {
   initialMessages?: Message[];
-  id?: string;
+  id: string;
 }
 
 export function Chat({ id, initialMessages, className }: ChatProps) {
@@ -20,6 +20,7 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
       id,
       initialMessages,
     });
+
   return (
     <>
       <div className={cn("pb-[200px] pt-4 md:pt-10", className)}>
@@ -29,10 +30,11 @@ export function Chat({ id, initialMessages, className }: ChatProps) {
             <ChatScrollAnchor trackVisibility={isLoading} />
           </>
         ) : (
-          <EmptyScreen setInput={setInput} />
+          <EmptyScreen chatId={id} setInput={setInput} />
         )}
       </div>
       <ChatPanel
+        chatId={id}
         isLoading={isLoading}
         stop={stop}
         append={append}

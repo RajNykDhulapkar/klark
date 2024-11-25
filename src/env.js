@@ -17,6 +17,11 @@ export const env = createEnv({
     OPENAI_API_KEY: z.string(),
     OPENAI_VERBOSE: z.string(),
     LAST_K_CHAT_HISTORY: z.string(),
+    MINIO_ENDPOINT: z.string(),
+    MINIO_ACCESS_KEY: z.string(),
+    MINIO_SECRET_KEY: z.string(),
+    MINIO_BUCKET: z.string(),
+    CHROMA_URL: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -49,6 +54,11 @@ export const env = createEnv({
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     OPENAI_VERBOSE: process.env.OPENAI_VERBOSE,
     LAST_K_CHAT_HISTORY: process.env.LAST_K_CHAT_HISTORY,
+    MINIO_ENDPOINT: process.env.MINIO_ENDPOINT,
+    MINIO_ACCESS_KEY: process.env.MINIO_ACCESS_KEY,
+    MINIO_SECRET_KEY: process.env.MINIO_SECRET_KEY,
+    MINIO_BUCKET: process.env.MINIO_BUCKET,
+    CHROMA_URL: process.env.CHROMA_URL,
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     EMAIL_FROM: process.env.EMAIL_FROM ?? "Acme <onboarding@resend.dev>",

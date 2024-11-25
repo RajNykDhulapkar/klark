@@ -25,6 +25,8 @@ docker-compose.yml
 .vercel
 .idea
 /db_data
+/minio_data
+/chroma_data
 /coverage
 /prisma/db.sqlite
 /prisma/db.sqlite-journal
