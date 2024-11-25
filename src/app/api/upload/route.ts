@@ -60,7 +60,10 @@ async function validateAuth() {
   };
 }
 
-async function processPDFBuffer(buffer: Buffer, metadata: Record<string, any>) {
+async function processPDFBuffer(
+  buffer: Buffer,
+  metadata: Record<string, unknown>,
+) {
   const tempPath = `/tmp/temp-${Date.now()}.pdf`;
   await promises.writeFile(tempPath, buffer);
 
