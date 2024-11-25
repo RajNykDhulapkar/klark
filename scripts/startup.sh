@@ -1,7 +1,5 @@
 #!/bin/bash
-
 set -e
-
 echo "Starting Klark Next.js Application..."
 
 # Function to check required environment variables
@@ -35,16 +33,63 @@ wait_for_db() {
   echo "PostgreSQL is up - continuing..."
 }
 
+# Function to wait for MinIO
+wait_for_minio() {
+  echo "Waiting for MinIO to be ready..."
+  until curl -sf "${MINIO_ENDPOINT}/minio/health/ready" >/dev/null 2>&1; do
+    echo "MinIO is unavailable - sleeping"
+    sleep 2
+  done
+  echo "MinIO is up - continuing..."
+}
+
+# Function to wait for ChromaDB
+wait_for_chroma() {
+  echo "Waiting for ChromaDB to be ready..."
+  until curl -sf "${CHROMA_URL}/api/v1/heartbeat" >/dev/null 2>&1; do
+    echo "ChromaDB is unavailable - sleeping"
+    sleep 2
+  done
+  echo "ChromaDB is up - continuing..."
+}
+
+setup_minio() {
+  echo "Setting up MinIO client..."
+  if ! command -v mc &>/dev/null; then
+    echo "Installing MinIO client..."
+    curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
+    chmod +x mc
+    mv mc /usr/local/bin/
+  fi
+
+  echo "Configuring MinIO client..."
+  # Remove any existing alias to avoid conflicts
+  mc alias remove klark_minio >/dev/null 2>&1 || true
+  mc alias set klark_minio ${MINIO_ENDPOINT} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+
+  echo "Checking/Creating 'uploads' bucket..."
+  # Create bucket if it doesn't exist
+  if ! mc ls klark_minio/uploads >/dev/null 2>&1; then
+    mc mb klark_minio/uploads
+    mc policy set private klark_minio/uploads
+  fi
+  echo "MinIO setup completed."
+}
+
 # Check required environment variables
 check_required_vars
 
 # Wait for the database to be ready
 wait_for_db
+wait_for_minio
+wait_for_chroma
+
+# Setup MinIO
+setup_minio
 
 # Run drizzle-kit migrations
 echo "Running database migrations..."
 pnpm run db:migrate
-
 echo "Migrations completed successfully."
 
 # Start the Next.js application
