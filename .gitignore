@@ -48,3 +48,4 @@ yarn-error.log*
 db_data/
 minio_data/
 chroma_data/
+.docker/

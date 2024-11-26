@@ -23,51 +23,39 @@ check_required_vars() {
   fi
 }
 
-# Function to wait for the PostgreSQL database to be ready
-wait_for_db() {
+# Function to wait for services
+wait_for_services() {
   echo "Waiting for PostgreSQL database to be ready..."
-  until pg_isready -h db -p 5432 -U username; do
+  until pg_isready -h db -p 5432 -U ${POSTGRES_USER}; do
     echo "PostgreSQL is unavailable - sleeping"
     sleep 2
   done
-  echo "PostgreSQL is up - continuing..."
+  echo "PostgreSQL is up"
+
+  echo "Waiting for MinIO to be ready..."
+  until curl -sf "${MINIO_ENDPOINT}/minio/health/live" >/dev/null 2>&1; do
+    echo "MinIO is unavailable - sleeping"
+    sleep 2
+  done
+  echo "MinIO is up"
+
+  sleep 5
 }
 
-echo "Waiting for services to start..."
-sleep 7
-
 setup_minio() {
-  echo "Setting up MinIO client..."
-  if ! command -v mc &>/dev/null; then
-    echo "Installing MinIO client..."
-    curl -O https://dl.min.io/client/mc/release/linux-amd64/mc
-    chmod +x mc
-    mv mc /usr/local/bin/
-  fi
-
-  echo "Configuring MinIO client..."
-  # Remove any existing alias to avoid conflicts
-  mc alias remove klark_minio >/dev/null 2>&1 || true
+  echo "Setting up MinIO..."
   mc alias set klark_minio ${MINIO_ENDPOINT} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
 
-  echo "Checking/Creating 'uploads' bucket..."
-  # Create bucket if it doesn't exist
   if ! mc ls klark_minio/uploads >/dev/null 2>&1; then
+    echo "Creating 'uploads' bucket..."
     mc mb klark_minio/uploads
     mc policy set private klark_minio/uploads
   fi
-  echo "MinIO setup completed."
 }
 
-# Check required environment variables
+# Main execution
 check_required_vars
-
-# Wait for the database to be ready
-wait_for_db
-wait_for_minio
-wait_for_chroma
-
-# Setup MinIO
+wait_for_services
 setup_minio
 
 # Run drizzle-kit migrations

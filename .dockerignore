@@ -27,6 +27,7 @@ docker-compose.yml
 /db_data
 /minio_data
 /chroma_data
+/.docker
 /coverage
 /prisma/db.sqlite
 /prisma/db.sqlite-journal

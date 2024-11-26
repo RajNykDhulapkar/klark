@@ -38,9 +38,9 @@ services:
     container_name: klark_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: klarkdb
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
@@ -52,8 +52,8 @@ services:
     restart: unless-stopped
     command: server /data
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: minio_username
+      MINIO_ROOT_PASSWORD: minio_password
     volumes:
       - minio_data:/data
     networks:
@@ -69,18 +69,20 @@ services:
       - app-network
 
   app:
-    image: registry.utho.io/bitnaysh/rajnykdhulapkar/klark:main
-    # container_name: klark_app
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app.rule=Host(`klark.bitnaysh.com`)"
+      - "traefik.http.routers.app.rule=Host(`localhost`)"
       - "traefik.http.routers.app.entrypoints=web"
       - "traefik.http.services.app.loadbalancer.server.port=3000"
       - "com.centurylinklabs.watchtower.enable=true"
     environment:
-      BASE_URL: ${BASE_URL}
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      BASE_URL: http://localhost:3000
+      POSTGRES_USER: username
+      DATABASE_URL: postgres://username:password@db:5432/klarkdb
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       RESEND_API_KEY: ${RESEND_API_KEY}
@@ -89,19 +91,16 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_VERBOSE: ${OPENAI_VERBOSE}
       MINIO_ENDPOINT: http://minio:9000
-      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
-      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
-      MINIO_BUCKET: ${MINIO_BUCKET}
+      MINIO_ACCESS_KEY: minio_username
+      MINIO_SECRET_KEY: minio_password
+      MINIO_BUCKET: uploads
       CHROMA_URL: http://chroma:8000
-      LAST_K_CHAT_HISTORY: ${LAST_K_CHAT_HISTORY}
+      LAST_K_CHAT_HISTORY: 5
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
       NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY}
       NEXT_PUBLIC_POSTHOG_HOST: ${NEXT_PUBLIC_POSTHOG_HOST}
-      NEXT_PUBLIC_COMING_SOON_MODE: ${NEXT_PUBLIC_COMING_SOON_MODE}
-      NODE_ENV: production
-    # deploy:
-    #   mode: replicated
-    #   replicas: 2
+      NEXT_PUBLIC_COMING_SOON_MODE: false
+      NODE_ENV: development
     depends_on:
       - db
     networks:
