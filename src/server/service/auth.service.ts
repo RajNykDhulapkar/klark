@@ -115,10 +115,15 @@ export async function createUser(
     email: string;
     passwordHash: string;
     name: string;
+    isGuest?: boolean;
   },
   tx: Transaction = db,
 ): Promise<void> {
-  await tx.insert(userTable).values({ ...user, verified: false });
+  await tx.insert(userTable).values({
+    ...user,
+    verified: user.isGuest ?? false,
+    isGuest: user.isGuest ?? false,
+  });
 }
 
 export async function createVerificationToken(

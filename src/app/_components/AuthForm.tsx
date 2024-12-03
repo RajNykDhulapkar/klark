@@ -66,6 +66,15 @@ function AuthFormContent({
     },
   });
 
+  const guestLogin = api.auth.guestLogin.useMutation({
+    async onSuccess() {
+      await utils.auth.user.invalidate(undefined, {
+        refetchType: "all",
+      });
+      window.location.href = redirect;
+    },
+  });
+
   const register = api.auth.register.useMutation({});
 
   const [activeTab, setActiveTab] = useState<keyof typeof pages>(defaultTab);
@@ -286,6 +295,35 @@ function AuthFormContent({
           </TabsContent>
         </Tabs>
       </CardContent>
+
+      <div className="flex items-center justify-center gap-2 px-8 py-2">
+        <div className="h-px flex-1 bg-border"></div>
+        <span className="text-sm text-muted-foreground">OR</span>
+        <div className="h-px flex-1 bg-border"></div>
+      </div>
+
+      <div className="space-y-4 px-8 py-4">
+        <Button
+          variant="outline"
+          className="w-full bg-blue-600 text-white shadow-sm transition-colors duration-200 hover:bg-blue-700 hover:text-white hover:shadow-md"
+          onClick={() => guestLogin.mutate()}
+          disabled={guestLogin.isPending}
+        >
+          {guestLogin.isPending ? (
+            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+          ) : null}
+          Continue as Guest
+        </Button>
+
+        {guestLogin.isError && (
+          <Alert>
+            <ExclamationTriangleIcon className="h-4 w-4 text-red-700" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{guestLogin.error.message}</AlertDescription>
+          </Alert>
+        )}
+      </div>
+
       <CardFooter>
         <p className="text-sm text-muted-foreground">
           By continuing, you agree to our Terms of Service and Privacy Policy.

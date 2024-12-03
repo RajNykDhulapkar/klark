@@ -29,6 +29,13 @@
       "when": 1732558448608,
       "tag": "0003_slow_leech",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1733223010847,
+      "tag": "0004_chubby_xavin",
+      "breakpoints": true
     }
   ]
 }

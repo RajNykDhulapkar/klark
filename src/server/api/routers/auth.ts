@@ -39,6 +39,40 @@ export const authRouter = createTRPCRouter({
     const { user } = ctx;
     return user;
   }),
+  guestLogin: publicProcedure.mutation(async ({ ctx }) => {
+    const userId = generateIdFromEntropySize(10);
+    const guestName = `Guest_${userId.slice(0, 6)}`;
+
+    try {
+      await createUser(
+        {
+          id: userId,
+          name: guestName,
+          email: `${userId}@guest.local`,
+          passwordHash: "guest", // No password needed for guest
+          isGuest: true, // Add this field to your user schema
+        },
+        ctx.db,
+      );
+
+      await createSession({
+        userId,
+        user: {
+          email: `${userId}@guest.local`,
+          name: guestName,
+        },
+        cookieStore: ctx.cookieStore,
+      });
+
+      return true;
+    } catch (e) {
+      console.error("Error creating guest account", e);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to create guest account",
+      });
+    }
+  }),
   register: publicProcedure
     .input(registerSchema)
     .mutation(async ({ input, ctx }) => {

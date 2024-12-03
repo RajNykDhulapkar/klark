@@ -80,6 +80,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     environment:
       BASE_URL: ${BASE_URL}
+      POSTGRES_USER: ${POSTGRES_USER}
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}

@@ -16,6 +16,7 @@ export const userTable = pgTable("klark_user", {
   email: varchar("email", { length: 255 }).notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   verified: boolean("verified").notNull().default(false),
+  isGuest: boolean("is_guest").notNull().default(false),
   stripeCustomerId: text("stripe_customer_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
